@@ -13,7 +13,7 @@ export const metadata: Metadata = {
     template: `%s - ${APP_NAME}`,
   },
   description: APP_DESCRIPTION,
-  manifest: '/pwa/manifest',
+  manifest: "/pwa/manifest",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
