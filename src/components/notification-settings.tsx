@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -18,29 +19,33 @@ export function NotificationSettings({ onClearHistory }: { onClearHistory: () =>
     }, []);
 
     const handleNotificationToggle = async (enabled: boolean) => {
-        if (enabled) {
-            if (!('Notification' in window)) {
-                toast({ variant: 'destructive', title: 'Error', description: 'This browser does not support desktop notifications.' });
-                return;
-            }
+        if (!('Notification' in window)) {
+            toast({ variant: 'destructive', title: 'Error', description: 'This browser does not support desktop notifications.' });
+            return;
+        }
 
+        if (enabled) {
             if (Notification.permission === 'granted') {
                 setIsNotificationPermissionGranted(true);
-                new Notification('PillWise Monitor', { body: 'Notifications are enabled!' });
+                new Notification('MediAlert', { body: 'You are all set to receive notifications!' });
             } else if (Notification.permission !== 'denied') {
                 const permission = await Notification.requestPermission();
                 if (permission === 'granted') {
                     setIsNotificationPermissionGranted(true);
-                    new Notification('PillWise Monitor', { body: 'Notifications enabled successfully!' });
+                    new Notification('MediAlert', { body: 'Notifications enabled successfully!' });
                 } else {
                      toast({ title: 'Info', description: 'Notification permission was not granted.' });
+                     setIsNotificationPermissionGranted(false);
                 }
             } else {
-                toast({ variant: 'destructive', title: 'Permission Denied', description: 'Please enable notifications in your browser settings.' });
+                toast({ variant: 'destructive', title: 'Permission Denied', description: 'Please enable notifications in your browser settings to receive alerts.' });
+                setIsNotificationPermissionGranted(false);
             }
         } else {
+            // There is no standard way to programmatically "un-grant" permission.
+            // We can only reflect the "off" state in our UI and stop sending notifications.
             setIsNotificationPermissionGranted(false);
-            toast({ title: 'Info', description: 'Notifications have been disabled in the app. You can re-enable them anytime.' });
+            toast({ title: 'Info', description: 'Notifications have been disabled in the app. You can re-enable them anytime from your browser settings.' });
         }
     };
 
@@ -49,13 +54,13 @@ export function NotificationSettings({ onClearHistory }: { onClearHistory: () =>
             <div className="flex items-center justify-between space-x-2">
                 <Label htmlFor="notifications" className="flex items-center gap-2 cursor-pointer">
                     <Bell className="h-4 w-4" />
-                    <span>Push Alerts</span>
+                    <span>Browser Alerts</span>
                 </Label>
                 <Switch
                     id="notifications"
                     checked={isNotificationPermissionGranted}
                     onCheckedChange={handleNotificationToggle}
-                    aria-label="Toggle push notifications"
+                    aria-label="Toggle browser notifications"
                 />
             </div>
             <Button variant="outline" className="w-full justify-start" onClick={onClearHistory}>

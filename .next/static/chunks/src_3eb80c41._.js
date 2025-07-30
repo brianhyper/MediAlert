@@ -608,25 +608,25 @@ function NotificationSettings({ onClearHistory }) {
         }
     }["NotificationSettings.useEffect"], []);
     const handleNotificationToggle = async (enabled)=>{
+        if (!('Notification' in window)) {
+            toast({
+                variant: 'destructive',
+                title: 'Error',
+                description: 'This browser does not support desktop notifications.'
+            });
+            return;
+        }
         if (enabled) {
-            if (!('Notification' in window)) {
-                toast({
-                    variant: 'destructive',
-                    title: 'Error',
-                    description: 'This browser does not support desktop notifications.'
-                });
-                return;
-            }
             if (Notification.permission === 'granted') {
                 setIsNotificationPermissionGranted(true);
-                new Notification('PillWise Monitor', {
-                    body: 'Notifications are enabled!'
+                new Notification('MediAlert', {
+                    body: 'You are all set to receive notifications!'
                 });
             } else if (Notification.permission !== 'denied') {
                 const permission = await Notification.requestPermission();
                 if (permission === 'granted') {
                     setIsNotificationPermissionGranted(true);
-                    new Notification('PillWise Monitor', {
+                    new Notification('MediAlert', {
                         body: 'Notifications enabled successfully!'
                     });
                 } else {
@@ -634,19 +634,23 @@ function NotificationSettings({ onClearHistory }) {
                         title: 'Info',
                         description: 'Notification permission was not granted.'
                     });
+                    setIsNotificationPermissionGranted(false);
                 }
             } else {
                 toast({
                     variant: 'destructive',
                     title: 'Permission Denied',
-                    description: 'Please enable notifications in your browser settings.'
+                    description: 'Please enable notifications in your browser settings to receive alerts.'
                 });
+                setIsNotificationPermissionGranted(false);
             }
         } else {
+            // There is no standard way to programmatically "un-grant" permission.
+            // We can only reflect the "off" state in our UI and stop sending notifications.
             setIsNotificationPermissionGranted(false);
             toast({
                 title: 'Info',
-                description: 'Notifications have been disabled in the app. You can re-enable them anytime.'
+                description: 'Notifications have been disabled in the app. You can re-enable them anytime from your browser settings.'
             });
         }
     };
@@ -664,36 +668,36 @@ function NotificationSettings({ onClearHistory }) {
                                 className: "h-4 w-4"
                             }, void 0, false, {
                                 fileName: "[project]/src/components/notification-settings.tsx",
-                                lineNumber: 51,
+                                lineNumber: 56,
                                 columnNumber: 21
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                children: "Push Alerts"
+                                children: "Browser Alerts"
                             }, void 0, false, {
                                 fileName: "[project]/src/components/notification-settings.tsx",
-                                lineNumber: 52,
+                                lineNumber: 57,
                                 columnNumber: 21
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/components/notification-settings.tsx",
-                        lineNumber: 50,
+                        lineNumber: 55,
                         columnNumber: 17
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$switch$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Switch"], {
                         id: "notifications",
                         checked: isNotificationPermissionGranted,
                         onCheckedChange: handleNotificationToggle,
-                        "aria-label": "Toggle push notifications"
+                        "aria-label": "Toggle browser notifications"
                     }, void 0, false, {
                         fileName: "[project]/src/components/notification-settings.tsx",
-                        lineNumber: 54,
+                        lineNumber: 59,
                         columnNumber: 17
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/src/components/notification-settings.tsx",
-                lineNumber: 49,
+                lineNumber: 54,
                 columnNumber: 13
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -705,20 +709,20 @@ function NotificationSettings({ onClearHistory }) {
                         className: "mr-2 h-4 w-4"
                     }, void 0, false, {
                         fileName: "[project]/src/components/notification-settings.tsx",
-                        lineNumber: 62,
+                        lineNumber: 67,
                         columnNumber: 17
                     }, this),
                     "Clear Event History"
                 ]
             }, void 0, true, {
                 fileName: "[project]/src/components/notification-settings.tsx",
-                lineNumber: 61,
+                lineNumber: 66,
                 columnNumber: 13
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/src/components/notification-settings.tsx",
-        lineNumber: 48,
+        lineNumber: 53,
         columnNumber: 9
     }, this);
 }
@@ -1846,17 +1850,42 @@ function Home() {
     const [events, setEvents] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])([]);
     const [isPending, startTransition] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useTransition"])();
     const { toast } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$hooks$2f$use$2d$toast$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useToast"])();
+    const eventIds = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"])(new Set());
+    const showNotification = (title, body)=>{
+        if ('Notification' in window && Notification.permission === 'granted') {
+            new Notification(title, {
+                body
+            });
+        }
+    };
     const handleFetchEvents = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useCallback"])({
-        "Home.useCallback[handleFetchEvents]": ()=>{
+        "Home.useCallback[handleFetchEvents]": (isInitialFetch = false)=>{
             startTransition({
                 "Home.useCallback[handleFetchEvents]": async ()=>{
                     const fetchedEvents = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$app$2f$data$3a$7f26fa__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$text$2f$javascript$3e$__["getEvents"])();
+                    if (!isInitialFetch && fetchedEvents.length > events.length) {
+                        const newEvents = fetchedEvents.filter({
+                            "Home.useCallback[handleFetchEvents].newEvents": (e)=>!eventIds.current.has(e.id)
+                        }["Home.useCallback[handleFetchEvents].newEvents"]);
+                        newEvents.forEach({
+                            "Home.useCallback[handleFetchEvents]": (event)=>{
+                                if (event.type === 'dispensed') {
+                                    showNotification('Medication Dispensed', event.message);
+                                } else if (event.type === 'reminder') {
+                                    showNotification('Reminder', event.message);
+                                }
+                            }
+                        }["Home.useCallback[handleFetchEvents]"]);
+                    }
                     setEvents(fetchedEvents);
+                    fetchedEvents.forEach({
+                        "Home.useCallback[handleFetchEvents]": (e)=>eventIds.current.add(e.id)
+                    }["Home.useCallback[handleFetchEvents]"]);
                 }
             }["Home.useCallback[handleFetchEvents]"]);
         }
     }["Home.useCallback[handleFetchEvents]"], [
-        startTransition
+        events.length
     ]);
     const handleClearHistory = async ()=>{
         const result = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$app$2f$data$3a$647027__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$text$2f$javascript$3e$__["clearEvents"])();
@@ -1865,7 +1894,8 @@ function Home() {
                 title: "Success",
                 description: "Event history has been cleared."
             });
-            handleFetchEvents(); // Refresh the data to show it's empty
+            handleFetchEvents(true);
+            eventIds.current.clear();
         } else {
             toast({
                 variant: 'destructive',
@@ -1876,11 +1906,13 @@ function Home() {
     };
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
         "Home.useEffect": ()=>{
-            handleFetchEvents();
-            const intervalId = setInterval(handleFetchEvents, 10000); // Auto-refresh every 10 seconds
+            handleFetchEvents(true);
+            const intervalId = setInterval({
+                "Home.useEffect.intervalId": ()=>handleFetchEvents(false)
+            }["Home.useEffect.intervalId"], 10000); // Auto-refresh every 10 seconds
             return ({
                 "Home.useEffect": ()=>clearInterval(intervalId)
-            })["Home.useEffect"]; // Cleanup interval on component unmount
+            })["Home.useEffect"];
         }
     }["Home.useEffect"], [
         handleFetchEvents
@@ -1919,7 +1951,7 @@ function Home() {
                         onClearHistory: handleClearHistory
                     }, void 0, false, {
                         fileName: "[project]/src/app/page.tsx",
-                        lineNumber: 68,
+                        lineNumber: 89,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1928,26 +1960,26 @@ function Home() {
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                 className: "flex justify-end mb-4",
                                 children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
-                                    onClick: handleFetchEvents,
+                                    onClick: ()=>handleFetchEvents(false),
                                     disabled: isPending,
                                     children: [
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$refresh$2d$cw$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__RefreshCw$3e$__["RefreshCw"], {
                                             className: `mr-2 h-4 w-4 ${isPending ? 'animate-spin' : ''}`
                                         }, void 0, false, {
                                             fileName: "[project]/src/app/page.tsx",
-                                            lineNumber: 75,
+                                            lineNumber: 96,
                                             columnNumber: 19
                                         }, this),
                                         "Refresh Data"
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/src/app/page.tsx",
-                                    lineNumber: 74,
+                                    lineNumber: 95,
                                     columnNumber: 15
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/src/app/page.tsx",
-                                lineNumber: 73,
+                                lineNumber: 94,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1958,7 +1990,7 @@ function Home() {
                                             className: "text-green-500"
                                         }, void 0, false, {
                                             fileName: "[project]/src/app/page.tsx",
-                                            lineNumber: 81,
+                                            lineNumber: 102,
                                             columnNumber: 21
                                         }, void 0),
                                         title: "Pills Dispensed Today",
@@ -1966,14 +1998,14 @@ function Home() {
                                             className: "animate-spin"
                                         }, void 0, false, {
                                             fileName: "[project]/src/app/page.tsx",
-                                            lineNumber: 83,
+                                            lineNumber: 104,
                                             columnNumber: 34
                                         }, void 0) : pillsDispensed.toString(),
                                         footer: "+1 from yesterday",
                                         color: "green"
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/page.tsx",
-                                        lineNumber: 80,
+                                        lineNumber: 101,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$stat$2d$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["StatCard"], {
@@ -1981,7 +2013,7 @@ function Home() {
                                             className: "text-orange-500"
                                         }, void 0, false, {
                                             fileName: "[project]/src/app/page.tsx",
-                                            lineNumber: 88,
+                                            lineNumber: 109,
                                             columnNumber: 21
                                         }, void 0),
                                         title: "Late Picked Doses",
@@ -1989,14 +2021,14 @@ function Home() {
                                             className: "animate-spin"
                                         }, void 0, false, {
                                             fileName: "[project]/src/app/page.tsx",
-                                            lineNumber: 90,
+                                            lineNumber: 111,
                                             columnNumber: 34
                                         }, void 0) : latePickedDoses.toString(),
                                         footer: "Requires a reminder",
                                         color: "orange"
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/page.tsx",
-                                        lineNumber: 87,
+                                        lineNumber: 108,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$stat$2d$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["StatCard"], {
@@ -2004,7 +2036,7 @@ function Home() {
                                             className: "text-purple-500"
                                         }, void 0, false, {
                                             fileName: "[project]/src/app/page.tsx",
-                                            lineNumber: 95,
+                                            lineNumber: 116,
                                             columnNumber: 21
                                         }, void 0),
                                         title: "Weekly Adherence",
@@ -2012,14 +2044,14 @@ function Home() {
                                             className: "animate-spin"
                                         }, void 0, false, {
                                             fileName: "[project]/src/app/page.tsx",
-                                            lineNumber: 97,
+                                            lineNumber: 118,
                                             columnNumber: 34
                                         }, void 0) : `${adherence}%`,
                                         footer: "+5% this week",
                                         color: "purple"
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/page.tsx",
-                                        lineNumber: 94,
+                                        lineNumber: 115,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$stat$2d$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["StatCard"], {
@@ -2027,7 +2059,7 @@ function Home() {
                                             className: "text-blue-500"
                                         }, void 0, false, {
                                             fileName: "[project]/src/app/page.tsx",
-                                            lineNumber: 102,
+                                            lineNumber: 123,
                                             columnNumber: 21
                                         }, void 0),
                                         title: "System Info Events",
@@ -2035,20 +2067,20 @@ function Home() {
                                             className: "animate-spin"
                                         }, void 0, false, {
                                             fileName: "[project]/src/app/page.tsx",
-                                            lineNumber: 104,
+                                            lineNumber: 125,
                                             columnNumber: 34
                                         }, void 0) : infoEvents.toString(),
                                         footer: "Total informational events",
                                         color: "blue"
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/page.tsx",
-                                        lineNumber: 101,
+                                        lineNumber: 122,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/app/page.tsx",
-                                lineNumber: 79,
+                                lineNumber: 100,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2060,44 +2092,44 @@ function Home() {
                                         loading: isPending
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/page.tsx",
-                                        lineNumber: 111,
+                                        lineNumber: 132,
                                         columnNumber: 15
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/src/app/page.tsx",
-                                    lineNumber: 110,
+                                    lineNumber: 131,
                                     columnNumber: 13
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/src/app/page.tsx",
-                                lineNumber: 109,
+                                lineNumber: 130,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/app/page.tsx",
-                        lineNumber: 72,
+                        lineNumber: 93,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/src/app/page.tsx",
-                lineNumber: 67,
+                lineNumber: 88,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$layout$2f$footer$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Footer"], {}, void 0, false, {
                 fileName: "[project]/src/app/page.tsx",
-                lineNumber: 116,
+                lineNumber: 137,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/src/app/page.tsx",
-        lineNumber: 66,
+        lineNumber: 87,
         columnNumber: 5
     }, this);
 }
-_s(Home, "OUuj5oNLflfRY+CMWQQNsPyjs38=", false, function() {
+_s(Home, "3PMImASKCXXeFb6QOwHP5Q+ba/Y=", false, function() {
     return [
         __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useTransition"],
         __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$hooks$2f$use$2d$toast$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useToast"]

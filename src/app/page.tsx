@@ -5,7 +5,7 @@ import { Header } from '@/components/layout/header';
 import { StatCard } from '@/components/stat-card';
 import { EventFeed } from '@/components/event-feed';
 import { Pill, CalendarOff, LineChart, Loader, Info, RefreshCw } from 'lucide-react';
-import { useEffect, useState, useTransition, useCallback } from 'react';
+import { useEffect, useState, useTransition, useCallback, useRef } from 'react';
 import type { Event } from '@/lib/types';
 import { getEvents, clearEvents } from './actions';
 import { Button } from '@/components/ui/button';
@@ -16,29 +16,50 @@ export default function Home() {
   const [events, setEvents] = useState<Event[]>([]);
   const [isPending, startTransition] = useTransition();
   const { toast } = useToast();
+  const eventIds = useRef(new Set());
 
-  const handleFetchEvents = useCallback(() => {
+  const showNotification = (title: string, body: string) => {
+    if ('Notification' in window && Notification.permission === 'granted') {
+      new Notification(title, { body });
+    }
+  };
+
+  const handleFetchEvents = useCallback((isInitialFetch = false) => {
     startTransition(async () => {
       const fetchedEvents = await getEvents();
+      
+      if (!isInitialFetch && fetchedEvents.length > events.length) {
+        const newEvents = fetchedEvents.filter(e => !eventIds.current.has(e.id));
+        newEvents.forEach(event => {
+          if (event.type === 'dispensed') {
+            showNotification('Medication Dispensed', event.message);
+          } else if (event.type === 'reminder') {
+            showNotification('Reminder', event.message);
+          }
+        });
+      }
+      
       setEvents(fetchedEvents);
+      fetchedEvents.forEach(e => eventIds.current.add(e.id));
     });
-  }, [startTransition]);
+  }, [events.length]);
 
   const handleClearHistory = async () => {
     const result = await clearEvents();
     if (result.success) {
       toast({ title: "Success", description: "Event history has been cleared." });
-      handleFetchEvents(); // Refresh the data to show it's empty
+      handleFetchEvents(true); 
+      eventIds.current.clear();
     } else {
       toast({ variant: 'destructive', title: "Error", description: `Failed to clear history: ${result.error}` });
     }
   }
 
   useEffect(() => {
-    handleFetchEvents();
-    const intervalId = setInterval(handleFetchEvents, 10000); // Auto-refresh every 10 seconds
+    handleFetchEvents(true);
+    const intervalId = setInterval(() => handleFetchEvents(false), 10000); // Auto-refresh every 10 seconds
 
-    return () => clearInterval(intervalId); // Cleanup interval on component unmount
+    return () => clearInterval(intervalId); 
   }, [handleFetchEvents]);
 
   const lastEvent = events[0];
@@ -71,7 +92,7 @@ export default function Home() {
         />
         <div className="grid gap-6 mt-6">
           <div className="flex justify-end mb-4">
-              <Button onClick={handleFetchEvents} disabled={isPending}>
+              <Button onClick={() => handleFetchEvents(false)} disabled={isPending}>
                   <RefreshCw className={`mr-2 h-4 w-4 ${isPending ? 'animate-spin' : ''}`} />
                   Refresh Data
               </Button>
