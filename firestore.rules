@@ -1,0 +1,13 @@
+
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Allow read access by default for development.
+    // For a production app, you should implement more granular security rules.
+    match /{document=**} {
+      allow read: if true;
+      allow write: if false; // Keep writes restricted for now
+    }
+  }
+}
