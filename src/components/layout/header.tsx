@@ -3,17 +3,25 @@
 
 import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
-import { Settings, Bell, Wifi, Heart } from "lucide-react";
+import { Settings, Bell, Wifi, Heart, PackagePlus } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Badge } from "@/components/ui/badge";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { NotificationSettings } from "@/components/notification-settings";
 import { type Event } from '@/lib/types';
 import { format } from 'date-fns';
+import { RestockPillsDialog } from '@/components/restock-dialog';
 
-export function Header({ onClearHistory, lastEvent }: { onClearHistory: () => void; lastEvent?: Event; }) {
+interface HeaderProps {
+    onClearHistory: () => void;
+    lastEvent?: Event;
+    onRestock: (quantity: number) => Promise<boolean>;
+}
+
+export function Header({ onClearHistory, lastEvent, onRestock }: HeaderProps) {
     const [lastActivity, setLastActivity] = useState('No recent activity');
     const [isClient, setIsClient] = useState(false);
+    const [isRestockDialogOpen, setIsRestockDialogOpen] = useState(false);
 
     useEffect(() => {
         setIsClient(true);
@@ -29,6 +37,7 @@ export function Header({ onClearHistory, lastEvent }: { onClearHistory: () => vo
     }, [lastEvent, isClient]);
 
     return (
+        <>
         <header className="bg-primary text-primary-foreground rounded-xl shadow-lg p-6">
             <div className="flex justify-between items-start">
                 <div className="flex items-start gap-4">
@@ -56,9 +65,13 @@ export function Header({ onClearHistory, lastEvent }: { onClearHistory: () => vo
                 </div>
 
                 <div className="flex flex-col md:flex-row items-stretch md:items-center gap-2 mt-4 md:mt-0">
-                     <Button variant="ghost" className="bg-primary-foreground/20 hover:bg-primary-foreground/30 text-primary-foreground justify-start md:justify-center">
-                        <Bell className="h-4 w-4 mr-1.5" />
-                        Alerts
+                     <Button 
+                        variant="ghost" 
+                        className="bg-primary-foreground/20 hover:bg-primary-foreground/30 text-primary-foreground justify-start md:justify-center"
+                        onClick={() => setIsRestockDialogOpen(true)}
+                    >
+                        <PackagePlus className="h-4 w-4 mr-1.5" />
+                        Restock
                     </Button>
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -79,5 +92,11 @@ export function Header({ onClearHistory, lastEvent }: { onClearHistory: () => vo
                 </div>
             </div>
         </header>
+        <RestockPillsDialog
+            isOpen={isRestockDialogOpen}
+            onClose={() => setIsRestockDialogOpen(false)}
+            onRestock={onRestock}
+        />
+        </>
     );
 }

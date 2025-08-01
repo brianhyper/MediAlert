@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -35,7 +36,10 @@ export function ThemeToggle() {
 
   return (
     <div className="flex items-center justify-between space-x-2">
-        <Label htmlFor="theme-switcher" className="flex items-center gap-2 cursor-pointer">
+        <Label 
+            htmlFor="theme-switcher" 
+            className="flex items-center gap-2 cursor-pointer"
+        >
             {theme === 'light' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
             <span>{theme === 'light' ? 'Light Mode' : 'Dark Mode'}</span>
         </Label>

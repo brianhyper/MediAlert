@@ -22,6 +22,10 @@ export const metadata: Metadata = {
   formatDetection: {
     telephone: false,
   },
+  icons: {
+    shortcut: "/icons/icon-192x192.png?v=1",
+    apple: "/icons/icon-192x192.png?v=1",
+  },
 };
 
 export const viewport: Viewport = {
